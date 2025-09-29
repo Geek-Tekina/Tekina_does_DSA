@@ -1,26 +1,22 @@
 class Solution {
 public:
+    int memo[50][50]; // assuming max size of values is 50
+
+    int dp(int i, int j, vector<int>& v) {
+        if (j - i < 2) return 0; // no triangle possible
+        if (memo[i][j] != -1) return memo[i][j];
+
+        int result = INT_MAX;
+        for (int k = i + 1; k < j; ++k) {
+            result = min(result, dp(i, k, v) + dp(k, j, v) + v[i] * v[k] * v[j]);
+        }
+
+        return memo[i][j] = result;
+    }
+
     int minScoreTriangulation(vector<int>& values) {
-        unordered_map<int, int> memo;
         int n = values.size();
-        function<int(int, int)> dp = [&](int i, int j) -> int {
-            if (i + 2 > j) {
-                return 0;
-            }
-            if (i + 2 == j) {
-                return values[i] * values[i + 1] * values[j];
-            }
-            int key = i * n + j;
-            if (!memo.count(key)) {
-                int minScore = INT_MAX;
-                for (int k = i + 1; k < j; k++) {
-                    minScore = min(minScore, values[i] * values[k] * values[j] +
-                                                 dp(i, k) + dp(k, j));
-                }
-                memo[key] = minScore;
-            }
-            return memo[key];
-        };
-        return dp(0, n - 1);
+        memset(memo, -1, sizeof(memo)); // initialize memo to -1
+        return dp(0, n - 1, values);
     }
 };
